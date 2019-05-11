@@ -1,11 +1,14 @@
 const firePixelArray = []
-const fireWidth = 2
-const fireHeight = 3
+const fireWidth = 10
+const fireHeight = 10
+const fireSize = fireWidth * fireHeight
 
 
 function start() {
   createFireDataStructure()
+  createFireSource()
   renderFire()
+  setInterval(calculateFirePropagation, 1000)
 }
 
 function createFireDataStructure() {
@@ -17,7 +20,29 @@ function createFireDataStructure() {
 
 
 function calculateFirePropagation() {
+  for (let column = 0; column < fireWidth; column++) {
+    for (let row = 0; row < fireHeight; row++) {
+      const pixelIndex = column + (fireWidth * row)
+      
+      updateFireIntensityPerPixel(pixelIndex)
+    }
+  }
 
+  renderFire()
+}
+
+function updateFireIntensityPerPixel(currentPixelIndex) {
+  const belowPixelIndex = currentPixelIndex + fireWidth
+
+  if (belowPixelIndex >= fireSize) {
+    return
+  }
+
+  const decay = 1
+  const belowPixelFireIntensity = firePixelArray[belowPixelIndex]
+  const newFireIntensity = belowPixelFireIntensity - decay
+
+  firePixelArray[currentPixelIndex] = newFireIntensity
 }
 
 function renderFire() {
@@ -28,8 +53,10 @@ function renderFire() {
 
     for (let column = 0; column < fireWidth; column++) {
       const pixelIndex = column + (fireWidth * row)
+      const fireIntensity = firePixelArray[pixelIndex]
       html += '<td>'
-      html += pixelIndex
+      html += `<div class="pixel-index">${pixelIndex}</div>`
+      html += fireIntensity
       html += '</td>'
     }
 
@@ -40,7 +67,15 @@ function renderFire() {
   html += '</table>'
 
   document.getElementById('fireDoom').innerHTML = html
-} 
+}
+
+function createFireSource() {
+  for (let column = 0; column <= fireWidth; column++) {
+    const pixelIndex = (fireSize - fireWidth) + column
+
+    firePixelArray[pixelIndex] = 36
+  }
+}
 
 
 start()
